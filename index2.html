@@ -48,7 +48,15 @@
         }
 
         .logo span {
-            color: #E91E63;
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background-color: #E91E63;
+            border-radius: 50%;
+            margin-left: 2px;
+            margin-top: 12px;
+            vertical-align: middle;
+            font-size: 0;
         }
 
         .company-info {
@@ -335,13 +343,16 @@
                 html2canvas: {
                     scale: 2,
                     useCORS: true,
-                    logging: false
+                    logging: false,
+                    width: element.offsetWidth,
+                    height: element.offsetHeight
                 },
                 jsPDF: {
                     unit: 'mm',
                     format: [200, 105],
                     orientation: 'landscape'
-                }
+                },
+                pagebreak: { mode: 'avoid-all' }
             };
 
             html2pdf().set(opt).from(element).save().then(function() {
