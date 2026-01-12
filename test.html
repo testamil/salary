@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pay Slip</title>
+    <!-- html2pdf library for PDF generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background-color: #808080;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* Half A4 Landscape: 200mm x 105mm */
+        .slip-container {
+            background-color: #fff;
+            width: 200mm;
+            height: 105mm;
+            padding: 10px 20px;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #000;
+        }
+
+        .company-name {
+            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .company-address {
+            font-size: 9px;
+            margin-bottom: 1px;
+        }
+
+        .slip-title {
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+            margin: 8px 0;
+            text-decoration: underline;
+        }
+
+        .content-wrapper {
+            display: flex;
+            gap: 20px;
+        }
+
+        .left-section {
+            flex: 1;
+        }
+
+        .right-section {
+            flex: 1;
+        }
+
+        .employee-info {
+            margin-bottom: 8px;
+            font-size: 10px;
+        }
+
+        .employee-info td {
+            padding: 2px 3px;
+        }
+
+        .employee-info .label {
+            width: 60px;
+        }
+
+        .section-title {
+            font-weight: bold;
+            font-size: 10px;
+            padding: 4px 0;
+            border-top: 1px solid #000;
+            border-bottom: 1px solid #000;
+            margin-top: 5px;
+        }
+
+        .details-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 9px;
+        }
+
+        .details-table td {
+            padding: 3px 5px;
+        }
+
+        .details-table .description {
+            width: 65%;
+        }
+
+        .details-table .amount {
+            text-align: right;
+            width: 35%;
+        }
+
+        .subtotal-row {
+            border-top: 1px solid #000;
+            font-weight: bold;
+        }
+
+        .subtotal-row td {
+            padding-top: 5px;
+        }
+
+        .total-section {
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 2px solid #000;
+            font-size: 11px;
+        }
+
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            padding: 5px 0;
+        }
+
+        .signature-section {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 10px;
+            font-size: 9px;
+        }
+
+        .signature-box {
+            text-align: center;
+            width: 150px;
+        }
+
+        .signature-line {
+            margin-top: 25px;
+            border-top: 1px solid #000;
+            padding-top: 3px;
+        }
+
+        /* Company Seal Stamp */
+        .company-seal {
+            width: 80px;
+            height: 80px;
+            /* border: 3px solid #6B2D8B; */
+            /* border-radius: 50%; */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transform: rotate(-15deg);
+            color: #6B2D8B;
+            font-family: 'Times New Roman', 'Georgia', serif;
+            font-weight: bold;
+            text-align: center;
+            padding: 5px;
+            /* background-color: rgba(255, 255, 255, 0.8); */
+            position: absolute;
+            bottom: 80px;
+            right: 120px;
+        }
+
+        .company-seal .seal-title {
+            font-size: 7px;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+
+        .company-seal .seal-location {
+            font-size: 6px;
+            margin-top: 2px;
+        }
+
+        .company-seal::before {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            right: 3px;
+            bottom: 3px;
+            /* border: 1px solid #6B2D8B; */
+            border-radius: 50%;
+        }
+
+        /* Download button styles */
+        .download-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: #4CAF50;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: background-color 0.3s;
+        }
+
+        .download-btn:hover {
+            background-color: #45a049;
+        }
+
+        .download-btn:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+
+        /* Hide button when printing */
+        @media print {
+            .download-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Download PDF Button -->
+    <button class="download-btn" onclick="downloadPDF()">Download PDF</button>
+
+    <div class="slip-container">
+        <div class="header">
+            <div class="company-name">Camellia Mount View Hotel</div>
+            <div class="company-address">Beralapanathra, Urubokka Sri Lanka</div>
+            <div class="company-address">Tel: 041-2272490 / 070-2370112 | Email: camelliamountview@gmail.com</div>
+        </div>
+
+        <div class="slip-title">Pay Slip</div>
+
+        <div class="content-wrapper">
+            <div class="left-section">
+                <div class="employee-info">
+                    <table>
+                        <tr>
+                            <td class="label">Period</td>
+                            <td>:</td>
+                            <td id="period">May 2025</td>
+                        </tr>
+                        <tr>
+                            <td class="label">Position</td>
+                            <td>:</td>
+                            <td id="position">Kitchen Steward and Customer Service</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <!-- Earnings Section -->
+                <div class="section-title">Earnings</div>
+                <table class="details-table">
+                    <tbody>
+                        <tr>
+                            <td class="description">Basic Salary</td>
+                            <td class="amount" id="basicSalary">68,000 LKR</td>
+                        </tr>
+                        <tr>
+                            <td class="description">Transportation Allowance</td>
+                            <td class="amount" id="transportAllowance">6,000 LKR</td>
+                        </tr>
+                        <tr>
+                            <td class="description">Meal Allowance</td>
+                            <td class="amount" id="mealAllowance">2,000 LKR</td>
+                        </tr>
+                        <tr>
+                            <td class="description">Other Allowance</td>
+                            <td class="amount" id="otherAllowance">8,000 LKR</td>
+                        </tr>
+                        <tr class="subtotal-row">
+                            <td class="description">Total Earnings</td>
+                            <td class="amount" id="totalEarnings">84,000 LKR</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="right-section">
+                <!-- Deductions Section -->
+                <div class="section-title">Deductions</div>
+                <table class="details-table">
+                    <tbody>
+                        <tr>
+                            <td class="description">Income Tax (PPH 21)</td>
+                            <td class="amount" id="incomeTax">0 LKR</td>
+                        </tr>
+                        <tr>
+                            <td class="description">Employee Contribution</td>
+                            <td class="amount" id="employeeContribution">0 LKR</td>
+                        </tr>
+                        <tr>
+                            <td class="description">Late Penalty</td>
+                            <td class="amount" id="latePenalty">0 LKR</td>
+                        </tr>
+                        <tr class="subtotal-row">
+                            <td class="description">Total Deductions</td>
+                            <td class="amount" id="totalDeductions">0 LKR</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- Net Salary -->
+                <div class="total-section">
+                    <div class="total-row">
+                        <span>Net Salary Received</span>
+                        <span id="netSalary">84,000 LKR</span>
+                    </div>
+                </div>
+
+                <div class="signature-section">
+                    <div class="signature-box">
+                        <div>Authorized By</div>
+                        <div class="signature-line">Camellia Mount View Hotel</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Company Seal -->
+        <div class="company-seal">
+            <div class="seal-title">Camellia Mount View Hotel</div>
+            <div class="seal-location">Beralapanathra, Urubokka</div>
+        </div>
+    </div>
+
+    <script>
+        // Helper function to format number with commas
+        function formatCurrency(number) {
+            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",") + ' LKR';
+        }
+
+        // Helper function to parse currency string to number
+        function parseCurrency(str) {
+            return parseInt(str.replace(/,/g, '').replace(' LKR', '')) || 0;
+        }
+
+        // Function to calculate totals
+        function calculateTotals() {
+            const basicSalary = parseCurrency(document.getElementById('basicSalary').textContent);
+            const transportAllowance = parseCurrency(document.getElementById('transportAllowance').textContent);
+            const mealAllowance = parseCurrency(document.getElementById('mealAllowance').textContent);
+            const otherAllowance = parseCurrency(document.getElementById('otherAllowance').textContent);
+
+            const totalEarnings = basicSalary + transportAllowance + mealAllowance + otherAllowance;
+            document.getElementById('totalEarnings').textContent = formatCurrency(totalEarnings);
+
+            const incomeTax = parseCurrency(document.getElementById('incomeTax').textContent);
+            const employeeContribution = parseCurrency(document.getElementById('employeeContribution').textContent);
+            const latePenalty = parseCurrency(document.getElementById('latePenalty').textContent);
+
+            const totalDeductions = incomeTax + employeeContribution + latePenalty;
+            document.getElementById('totalDeductions').textContent = formatCurrency(totalDeductions);
+
+            const netSalary = totalEarnings - totalDeductions;
+            document.getElementById('netSalary').textContent = formatCurrency(netSalary);
+        }
+
+        // Function to download as PDF
+        function downloadPDF() {
+            const button = document.querySelector('.download-btn');
+            const originalText = button.textContent;
+            button.textContent = 'Generating PDF...';
+            button.disabled = true;
+
+            const element = document.querySelector('.slip-container');
+            const period = document.getElementById('period').textContent.replace(/ /g, '_');
+            const filename = `PaySlip_${period}.pdf`;
+
+            // Half A4 landscape: 200mm x 105mm
+            const opt = {
+                margin: 0,
+                filename: filename,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: [200, 105],
+                    orientation: 'landscape'
+                }
+            };
+
+            html2pdf().set(opt).from(element).save().then(function() {
+                button.textContent = originalText;
+                button.disabled = false;
+            }).catch(function(error) {
+                console.error('PDF generation failed:', error);
+                button.textContent = originalText;
+                button.disabled = false;
+                alert('Failed to generate PDF. Please try again.');
+            });
+        }
+
+        // Initialize calculations on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateTotals();
+        });
+    </script>
+</body>
+</html>
