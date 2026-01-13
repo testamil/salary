@@ -18,9 +18,8 @@
             background-color: #808080;
             padding: 20px;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            min-height: 100vh;
         }
 
         /* Half A4 Landscape: 200mm x 105mm */
@@ -32,6 +31,9 @@
             position: relative;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         .header {
@@ -71,6 +73,8 @@
 
         .right-section {
             flex: 1;
+            position: relative;
+            top: 30px;
         }
 
         .employee-info {
@@ -173,7 +177,7 @@
             padding: 5px;
             /* background-color: rgba(255, 255, 255, 0.8); */
             position: absolute;
-            bottom: 80px;
+            bottom: 30px;
             right: 120px;
         }
 
@@ -251,6 +255,11 @@
                 <div class="employee-info">
                     <table>
                         <tr>
+                            <td class="label">Name</td>
+                            <td>:</td>
+                            <td id="employeeName">MR HAGC Jayakantha</td>
+                        </tr>
+                        <tr>
                             <td class="label">Period</td>
                             <td>:</td>
                             <td id="period">May 2025</td>
@@ -276,17 +285,22 @@
                             <td class="amount" id="transportAllowance">6,000 LKR</td>
                         </tr>
                         <tr>
-                            <td class="description">Meal Allowance</td>
+                            <td class="description">Service Chage</td>
                             <td class="amount" id="mealAllowance">2,000 LKR</td>
                         </tr>
                         <tr>
                             <td class="description">Other Allowance</td>
                             <td class="amount" id="otherAllowance">8,000 LKR</td>
                         </tr>
+                         <tr>
+                            <td class="description">OverTime</td>
+                            <td class="amount" id="otherAllowance">10,000 LKR</td>
+                        </tr>
                         <tr class="subtotal-row">
                             <td class="description">Total Earnings</td>
                             <td class="amount" id="totalEarnings">84,000 LKR</td>
                         </tr>
+                        
                     </tbody>
                 </table>
             </div>
@@ -297,8 +311,8 @@
                 <table class="details-table">
                     <tbody>
                         <tr>
-                            <td class="description">Income Tax (PPH 21)</td>
-                            <td class="amount" id="incomeTax">0 LKR</td>
+                            <td class="description">Loan/Advance</td>
+                            <td class="amount" id="incomeTax">15,000 LKR</td>
                         </tr>
                         <tr>
                             <td class="description">Employee Contribution</td>
