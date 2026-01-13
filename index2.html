@@ -30,9 +30,10 @@
             padding: 12px 25px;
             position: relative;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-            overflow: hidden;
+            overflow: visible;
             display: flex;
             flex-direction: column;
+            margin-bottom: 25px;
         }
 
         .header {
@@ -205,6 +206,29 @@
             cursor: not-allowed;
         }
 
+        /* Cut line (dotted line with scissors) */
+        .cut-line {
+            position: absolute;
+            bottom: -5px;
+            left: -10px;
+            right: -10px;
+            display: flex;
+            align-items: center;
+            color: #888;
+        }
+
+        .cut-line::before {
+            content: "✂";
+            font-size: 16px;
+            margin-right: 8px;
+        }
+
+        .cut-line::after {
+            content: "";
+            flex: 1;
+            border-top: 2px dashed #888;
+        }
+
         @media print {
             .download-btn {
                 display: none;
@@ -301,6 +325,7 @@
                 </div>
             </div>
         </div>
+        <div class="cut-line"></div>
     </div>
 
     <script>
